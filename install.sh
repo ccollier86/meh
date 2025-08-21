@@ -92,25 +92,40 @@ echo ""
 echo "Installing Python dependencies..."
 uv sync
 
-# Get OpenAI API key
+# Get OpenAI API key (REQUIRED)
 echo ""
 echo "======================================"
-echo "  API KEY CONFIGURATION"
+echo "  OPENAI API KEY REQUIRED"
 echo "======================================"
 echo ""
-echo "You need an OpenAI API key to use this tool."
+echo "This tool requires an OpenAI API key to analyze notes."
 echo "Get one at: https://platform.openai.com/api-keys"
 echo ""
-read -p "Enter your OpenAI API key (or press Enter to skip): " API_KEY
+echo "Your API key will be stored locally in a .env file"
+echo "and will NOT be shared or transmitted anywhere except to OpenAI."
+echo ""
 
-if [ ! -z "$API_KEY" ]; then
-    # Create .env file with API key
-    echo "OPENAI_API_KEY=$API_KEY" > "$INSTALL_DIR/.env"
-    echo "✓ API key configured"
-else
-    echo "⚠ API key not configured. You'll need to add it manually later."
-    echo "  Create a .env file with: OPENAI_API_KEY=your_key_here"
-fi
+# Keep asking until we get a key
+while true; do
+    read -p "Enter your OpenAI API key (starts with 'sk-'): " API_KEY
+    
+    if [ -z "$API_KEY" ]; then
+        echo ""
+        echo "⚠ API key is required to use this tool."
+        echo "  Please enter your OpenAI API key or press Ctrl+C to cancel."
+        echo ""
+    elif [[ ! "$API_KEY" =~ ^sk- ]]; then
+        echo ""
+        echo "⚠ Invalid API key format. OpenAI keys start with 'sk-'"
+        echo "  Please try again or press Ctrl+C to cancel."
+        echo ""
+    else
+        # Create .env file with API key
+        echo "OPENAI_API_KEY=$API_KEY" > "$INSTALL_DIR/.env"
+        echo "✓ API key configured successfully"
+        break
+    fi
+done
 
 # Create command-line wrapper
 echo ""
@@ -189,9 +204,6 @@ echo "  - therapy_notes/    (original therapy notes)"
 echo "  - processed/        (corrected files)"
 echo "  - compliance_reports/ (HTML & JSON reports)"
 echo ""
-if [ -z "$API_KEY" ]; then
-    echo "⚠ IMPORTANT: Create a .env file with your OpenAI API key:"
-    echo "  echo 'OPENAI_API_KEY=your_key_here' > $INSTALL_DIR/.env"
-    echo ""
-fi
+echo "Your OpenAI API key has been configured."
+echo ""
 echo "======================================"

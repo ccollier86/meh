@@ -325,11 +325,10 @@ class TherapyNoteProcessor:
             font_path = os_module.path.join(current_dir, "Open_Sans", "static", "OpenSans-Light.ttf")
             font_path_bold_italic = os_module.path.join(current_dir, "Open_Sans", "static", "OpenSans-BoldItalic.ttf")
             
-            # Debug: Check if font files exist
-            if not os_module.path.exists(font_path_bold_italic):
-                print(f"      Warning: Bold Italic font not found at {font_path_bold_italic}")
-                # Fallback to built-in font
-                font_path_bold_italic = None
+            # Check if font files exist
+            use_open_sans = os_module.path.exists(font_path)
+            if not use_open_sans:
+                print(f"      Note: Open Sans Light font not found at {font_path}")
             fixed = False
             
             for page_num in range(len(doc)):
@@ -370,24 +369,42 @@ class TherapyNoteProcessor:
                                 page.add_redact_annot(expanded)
                                 page.apply_redactions()
                                 
-                                # Insert the new signature block with Open Sans Light
+                                # Insert the new signature block with Open Sans Light if available
                                 # First line: "Electronically signed by [Name]"
-                                page.insert_text(
-                                    point=(sig_rect.x0, sig_rect.y0 + sig_rect.height * 0.8),
-                                    text=f"Electronically signed by {signer_name}",
-                                    fontsize=9,
-                                    fontfile=font_path,  # Open Sans Light
-                                    color=(0, 0, 0)
-                                )
-                                
-                                # Second line: "[Credentials] at [date/time]"
-                                page.insert_text(
-                                    point=(sig_rect.x0, sig_rect.y0 + sig_rect.height * 0.8 + 12),
-                                    text=f"{credentials} at {new_datetime}",
-                                    fontsize=9,
-                                    fontfile=font_path,  # Open Sans Light
-                                    color=(0, 0, 0)
-                                )
+                                if use_open_sans:
+                                    page.insert_text(
+                                        point=(sig_rect.x0, sig_rect.y0 + sig_rect.height * 0.8),
+                                        text=f"Electronically signed by {signer_name}",
+                                        fontsize=9,
+                                        fontfile=font_path,  # Open Sans Light
+                                        color=(0, 0, 0)
+                                    )
+                                    
+                                    # Second line: "[Credentials] at [date/time]"
+                                    page.insert_text(
+                                        point=(sig_rect.x0, sig_rect.y0 + sig_rect.height * 0.8 + 12),
+                                        text=f"{credentials} at {new_datetime}",
+                                        fontsize=9,
+                                        fontfile=font_path,  # Open Sans Light
+                                        color=(0, 0, 0)
+                                    )
+                                else:
+                                    # Fallback to Helvetica
+                                    page.insert_text(
+                                        point=(sig_rect.x0, sig_rect.y0 + sig_rect.height * 0.8),
+                                        text=f"Electronically signed by {signer_name}",
+                                        fontsize=9,
+                                        fontname="Helvetica",
+                                        color=(0, 0, 0)
+                                    )
+                                    
+                                    page.insert_text(
+                                        point=(sig_rect.x0, sig_rect.y0 + sig_rect.height * 0.8 + 12),
+                                        text=f"{credentials} at {new_datetime}",
+                                        fontsize=9,
+                                        fontname="Helvetica",
+                                        color=(0, 0, 0)
+                                    )
                                 
                                 fixed = True
                                 print(f"      Fixed signature date: {new_datetime}")
@@ -408,14 +425,23 @@ class TherapyNoteProcessor:
                             page.add_redact_annot(expanded)
                             page.apply_redactions()
                             
-                            # Use Open Sans Light for CPT code corrections
-                            page.insert_text(
-                                point=(rect.x0, rect.y0 + rect.height * 0.8),
-                                text=correct_code,
-                                fontsize=9,
-                                fontfile=font_path,  # Open Sans Light
-                                color=(0, 0, 0)
-                            )
+                            # Use Open Sans Light for CPT code corrections if available
+                            if use_open_sans:
+                                page.insert_text(
+                                    point=(rect.x0, rect.y0 + rect.height * 0.8),
+                                    text=correct_code,
+                                    fontsize=9,
+                                    fontfile=font_path,  # Open Sans Light
+                                    color=(0, 0, 0)
+                                )
+                            else:
+                                page.insert_text(
+                                    point=(rect.x0, rect.y0 + rect.height * 0.8),
+                                    text=correct_code,
+                                    fontsize=9,
+                                    fontname="Helvetica",
+                                    color=(0, 0, 0)
+                                )
                             fixed = True
                             print(f"      Fixed CPT: {current_code} -> {correct_code}")
                 
@@ -444,26 +470,15 @@ class TherapyNoteProcessor:
                             page.add_redact_annot(expanded)
                             page.apply_redactions()
                             
-                            # Use Open Sans Bold Italic for "Rendered by:" line
-                            # Don't add ANY "Supervised by" - the MD one is already there!
-                            if font_path_bold_italic:
-                                # Use Open Sans Bold Italic if available
-                                page.insert_text(
-                                    point=(rect.x0, rect.y0 + rect.height * 0.8),
-                                    text=f"Rendered by: {signer_name}, {signer_credentials}",
-                                    fontsize=9,
-                                    fontfile=font_path_bold_italic,  # Open Sans Bold Italic
-                                    color=(0, 0, 0)
-                                )
-                            else:
-                                # Fallback to built-in Helvetica Bold Oblique
-                                page.insert_text(
-                                    point=(rect.x0, rect.y0 + rect.height * 0.8),
-                                    text=f"Rendered by: {signer_name}, {signer_credentials}",
-                                    fontsize=9,
-                                    fontname="Helvetica-BoldOblique",  # Built-in bold italic
-                                    color=(0, 0, 0)
-                                )
+                            # For "Rendered by:" line, use Helvetica-BoldOblique which properly shows both bold and italic
+                            # The OpenSans-BoldItalic file seems to only show bold, not italic in PDFs
+                            page.insert_text(
+                                point=(rect.x0, rect.y0 + rect.height * 0.8),
+                                text=f"Rendered by: {signer_name}, {signer_credentials}",
+                                fontsize=9,
+                                fontname="Helvetica-BoldOblique",  # Built-in font that shows both bold AND italic
+                                color=(0, 0, 0)
+                            )
                             
                             # That's it! The original "Supervised by: Neil Jariwala, MD" stays untouched
                             # The original "Diagnoses attached to this encounter:" stays untouched
@@ -996,9 +1011,12 @@ class TherapyNoteProcessor:
         for name, path in folders.items():
             print(f"   - {name}: {path}")
         
-        # Find all PDFs
-        pdf_files = glob.glob(os.path.join(input_path, "*.pdf"))
-        pdf_files = [f for f in pdf_files if '_CORRECTED' not in f]
+        # Find all PDFs - search in root and all subdirectories
+        pdf_files = []
+        for root, dirs, files in os.walk(input_path):
+            for file in files:
+                if file.endswith('.pdf') and '_CORRECTED' not in file:
+                    pdf_files.append(os.path.join(root, file))
         
         if not pdf_files:
             print("ERROR: No PDF files found!")
