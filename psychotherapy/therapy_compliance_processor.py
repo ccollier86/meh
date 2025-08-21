@@ -49,6 +49,15 @@ class TherapyNoteProcessor:
                 for i in range(min(2, len(pdf.pages))):
                     text_to_check += pdf.pages[i].extract_text() + "\n"
                 
+                # Special case: Jennifer Bell is always a therapy provider
+                if "Jennifer Bell" in text_to_check:
+                    # Check for therapy CPT codes
+                    if any(code in text_to_check for code in ['90791', '90832', '90834', '90837', '90847', '90853']):
+                        return True, "Therapist"
+                    # Check for START TIME/END TIME pattern
+                    if "START TIME:" in text_to_check and "END TIME:" in text_to_check:
+                        return True, "Therapist"
+                
                 # Check for therapy credentials in signature area
                 for credential in self.therapy_credentials:
                     # Look for credentials near "signed by" area
