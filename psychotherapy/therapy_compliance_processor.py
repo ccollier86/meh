@@ -52,8 +52,8 @@ class TherapyNoteProcessor:
                 # Check for therapy CPT codes first - strongest indicator
                 has_therapy_cpt = any(code in text_to_check for code in ['90791', '90832', '90834', '90837', '90847', '90853'])
                 
-                # Check for medical credentials (MD, DO, NP, PA)
-                medical_credentials = ['MD', 'M.D.', 'DO', 'D.O.', 'NP', 'PA', 'PA-C']
+                # Check for medical credentials (MD, DO, NP, PA, APRN, etc.)
+                medical_credentials = ['MD', 'M.D.', 'DO', 'D.O.', 'NP', 'PA', 'PA-C', 'APRN', 'CNP', 'CRNP', 'DNP', 'FNP', 'FNP-C', 'FNP-BC', 'PMHNP', 'PMHNP-BC', 'ANP', 'GNP', 'ACNP', 'CNS', 'CNM']
                 has_medical_credential = False
                 
                 if "signed by" in text_to_check.lower():
