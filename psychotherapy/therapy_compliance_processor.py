@@ -9,6 +9,7 @@ import sys
 import json
 import glob
 import shutil
+import re
 from datetime import datetime, timedelta
 import pdfplumber
 import fitz  # PyMuPDF
@@ -190,7 +191,6 @@ class TherapyNoteProcessor:
             return json.loads(response.choices[0].message.content)
         except json.JSONDecodeError:
             content = response.choices[0].message.content
-            import re
             json_match = re.search(r'\{.*\}', content, re.DOTALL)
             if json_match:
                 return json.loads(json_match.group())
@@ -300,7 +300,6 @@ class TherapyNoteProcessor:
             return json.loads(response.choices[0].message.content)
         except json.JSONDecodeError:
             content = response.choices[0].message.content
-            import re
             json_match = re.search(r'\{.*\}', content, re.DOTALL)
             if json_match:
                 return json.loads(json_match.group())
@@ -343,7 +342,6 @@ class TherapyNoteProcessor:
                             sig_rect = sig_instances[0]
                             
                             # Extract the signer name and credentials from the replacement text
-                            import re
                             # Pattern to extract name, credentials, and new date/time
                             pattern = r'Electronically signed by\s+(.*?)\s+([A-Z]+(?:,\s*[A-Z]+)*)\s+at\s+(\d{2}/\d{2}/\d{4}\s+\d{1,2}:\d{2}\s+[ap]m)'
                             match = re.search(pattern, replacement_text)
