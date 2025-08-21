@@ -189,8 +189,8 @@ if [ -z "$folder_path" ]; then
 fi
 
 # Remove quotes if dragged from Finder
-folder_path="${folder_path%'}"
-folder_path="${folder_path#'}"
+folder_path="${folder_path%\'}"
+folder_path="${folder_path#\'}"
 
 /usr/local/bin/check-compliance "$folder_path"
 
