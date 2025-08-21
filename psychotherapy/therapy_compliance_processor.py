@@ -317,11 +317,13 @@ class TherapyNoteProcessor:
             return False
         
         try:
+            import os as os_module  # Ensure os is available
             doc = fitz.open(pdf_path)
             
             # Load Open Sans Light font
-            font_path = os.path.join(os.path.dirname(__file__), "Open_Sans", "static", "OpenSans-Light.ttf")
-            font_path_bold_italic = os.path.join(os.path.dirname(__file__), "Open_Sans", "static", "OpenSans-BoldItalic.ttf")
+            current_dir = os_module.path.dirname(os_module.path.abspath(__file__))
+            font_path = os_module.path.join(current_dir, "Open_Sans", "static", "OpenSans-Light.ttf")
+            font_path_bold_italic = os_module.path.join(current_dir, "Open_Sans", "static", "OpenSans-BoldItalic.ttf")
             fixed = False
             
             for page_num in range(len(doc)):
@@ -459,9 +461,8 @@ class TherapyNoteProcessor:
                 doc.close()
                 
                 # Replace original with fixed version
-                import os
-                os.remove(pdf_path)
-                os.rename(output_path, pdf_path)
+                os_module.remove(pdf_path)
+                os_module.rename(output_path, pdf_path)
                 
                 return True
             
