@@ -352,7 +352,7 @@ class TherapyNoteProcessor:
                                 point=(rect.x0, rect.y0 + rect.height * 0.8),
                                 text=new_date,
                                 fontsize=9,
-                                fontname="helv",
+                                fontname="Helvetica",  # Using standard Helvetica to match surrounding text
                                 color=(0, 0, 0)
                             )
                             fixed = True
@@ -377,8 +377,8 @@ class TherapyNoteProcessor:
                             page.insert_text(
                                 point=(rect.x0, rect.y0 + rect.height * 0.8),
                                 text=correct_code,
-                                fontsize=8.82,
-                                fontname="helv",
+                                fontsize=9,
+                                fontname="Helvetica",  # Match surrounding text font
                                 color=(0, 0, 0)
                             )
                             fixed = True
@@ -414,7 +414,7 @@ class TherapyNoteProcessor:
                             page.insert_text(
                                 point=(rect.x0, rect.y0 + rect.height * 0.8),
                                 text=f"Rendered by: {signer_name}, {signer_credentials}",
-                                fontsize=8.82,
+                                fontsize=9,
                                 fontname="Helvetica-BoldOblique",  # Bold + Italic
                                 color=(0, 0, 0)
                             )
