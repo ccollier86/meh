@@ -209,14 +209,14 @@ class TherapyNoteProcessor:
         
         2. CPT CODE COMPLIANCE:
            - LOOK RIGHT ABOVE THE START TIME/END TIME - it will say either "INITIAL VISIT" or "FOLLOW-UP"
-           - If it says "INITIAL VISIT" AND duration is 53+ minutes: code should be 90791
+           - If it says "INITIAL VISIT" AND duration is 53 minutes or more: code should be 90791
            - If it says "FOLLOW-UP": 
              * 90791 is WRONG - NEVER use 90791 for follow-ups!
              * Calculate duration from START TIME to END TIME
              * 16-37 minutes = 90832
              * 38-52 minutes = 90834  
-             * 53+ minutes = 90837
-           - CRITICAL: A 60-minute FOLLOW-UP should be 90837, NOT 90791!
+             * 53 minutes or more = 90837
+           - CRITICAL: A 53-minute or 60-minute FOLLOW-UP should be 90837, NOT 90791!
         
         3. TREATMENT GOALS:
            - Look for Goal sections (may be labeled "Goal #1", "Goal 1", "Goal", etc.)

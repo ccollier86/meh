@@ -14,7 +14,7 @@ Professional tool for automated psychotherapy note compliance checking and corre
 - **CPT Code Accuracy**: Verifies code matches session duration
   - 90832 (16-37 minutes)
   - 90834 (38-52 minutes)  
-  - 90837 (53+ minutes)
+  - 90837 (53 minutes or more)
 - **Treatment Goals**: Ensures 2 properly formatted goals are present
 
 ✅ **Automatic Corrections**
@@ -148,7 +148,7 @@ You'll need an OpenAI API key:
 ### CPT Code Rules
 - **90832**: 16-37 minutes
 - **90834**: 38-52 minutes
-- **90837**: 53+ minutes
+- **90837**: 53 minutes or more
 - **90791**: Initial psychiatric evaluation
 - **90847**: Family therapy with patient
 - **90853**: Group therapy
