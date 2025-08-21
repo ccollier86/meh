@@ -1,0 +1,23 @@
+[project]
+name = "therapy-compliance-processor"
+version = "2.0.0"
+description = "Automated therapy and medical note compliance checking with MDM analysis"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pdfplumber>=0.10.0",
+    "pymupdf>=1.24.0",
+    "openai>=1.0.0",
+    "python-dateutil>=2.8.2",
+    "python-dotenv>=1.0.0",
+]
+
+[project.scripts]
+check-compliance = "psychotherapy.therapy_compliance_processor:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = []

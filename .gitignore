@@ -1,0 +1,65 @@
+# PDF files and sensitive data
+*.pdf
+PDF/
+PDFs/
+pdf/
+pdfs/
+
+# Generated folders
+medical_notes/
+therapy_notes/
+processed/
+compliance_reports/
+
+# Test documents (keep test_docs for demo purposes)
+# test_docs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# API Keys and secrets
+.env
+*.env
+.env.local
+config.ini
+secrets.json
+
+# Temporary files
+*.tmp
+*.temp
+*_TEMP_*
+*_temp_*
+
+# UV/Python
+.python-version
+uv.lock
+
+# Investigation files (internal use)
+improvement_investigation.md
+
+# Serena/Claude files
+.serena/
