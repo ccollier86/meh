@@ -11,8 +11,9 @@ therapy_notes/
 processed/
 compliance_reports/
 
-# Test documents (keep test_docs for demo purposes)
-# test_docs/
+# Test documents
+test_docs/
+psychotherapy/test_docs/
 
 # Python
 __pycache__/
