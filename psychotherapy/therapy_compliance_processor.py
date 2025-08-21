@@ -810,13 +810,13 @@ class TherapyNoteProcessor:
                 # Status
                 status = '<span class="badge badge-success">Corrected</span>' if result.get('corrections_made') else '<span class="badge badge-warning">Review</span>' if issues else '<span class="badge badge-success">OK</span>'
                 
-                # File links
+                # File links - use absolute paths
                 if result.get('corrections_made'):
-                    processed_path = os.path.join(folders['processed'], filename.replace('.pdf', '_CORRECTED.pdf'))
-                    original_path = os.path.join(folders['therapy'], filename)
+                    processed_path = os.path.abspath(os.path.join(folders['processed'], filename.replace('.pdf', '_CORRECTED.pdf')))
+                    original_path = os.path.abspath(os.path.join(folders['therapy'], filename))
                     links = f'<a href="file://{original_path}" class="file-link">Original</a> | <a href="file://{processed_path}" class="file-link">Corrected</a>'
                 else:
-                    therapy_path = os.path.join(folders['therapy'], filename)
+                    therapy_path = os.path.abspath(os.path.join(folders['therapy'], filename))
                     links = f'<a href="file://{therapy_path}" class="file-link">View</a>'
                 
                 html += f"""
@@ -866,8 +866,8 @@ class TherapyNoteProcessor:
                 meets_mdm = result.get('meets_moderate_mdm', False)
                 mdm_status = '<span class="badge badge-success">Meets MDM</span>' if meets_mdm else '<span class="badge badge-warning">Below MDM</span>'
                 
-                # File link
-                medical_path = os.path.join(folders['medical'], filename)
+                # File link - use absolute path
+                medical_path = os.path.abspath(os.path.join(folders['medical'], filename))
                 link = f'<a href="file://{medical_path}" class="file-link">View</a>'
                 
                 html += f"""
