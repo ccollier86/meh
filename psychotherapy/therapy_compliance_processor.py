@@ -351,7 +351,7 @@ class TherapyNoteProcessor:
                             page.insert_text(
                                 point=(rect.x0, rect.y0 + rect.height * 0.8),
                                 text=new_date,
-                                fontsize=8.82,
+                                fontsize=9,
                                 fontname="helv",
                                 color=(0, 0, 0)
                             )
@@ -409,22 +409,13 @@ class TherapyNoteProcessor:
                             page.add_redact_annot(expanded)
                             page.apply_redactions()
                             
-                            # ONLY insert corrected "Rendered by:" line
+                            # Insert entire "Rendered by:" line in bold italic
                             # Don't add ANY "Supervised by" - the MD one is already there!
                             page.insert_text(
                                 point=(rect.x0, rect.y0 + rect.height * 0.8),
-                                text="Rendered by:",
+                                text=f"Rendered by: {signer_name}, {signer_credentials}",
                                 fontsize=8.82,
-                                fontname="Helvetica-Bold",  # Bold only for the label
-                                color=(0, 0, 0)
-                            )
-                            
-                            # Insert the signer's name after "Rendered by:" (not bold)
-                            page.insert_text(
-                                point=(rect.x0 + 65, rect.y0 + rect.height * 0.8),
-                                text=f" {signer_name}, {signer_credentials}",
-                                fontsize=8.82,
-                                fontname="helv",  # Regular font for the name
+                                fontname="Helvetica-BoldOblique",  # Bold + Italic
                                 color=(0, 0, 0)
                             )
                             
