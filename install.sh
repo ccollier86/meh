@@ -173,7 +173,7 @@ chmod +x /usr/local/bin/check-compliance
 echo ""
 read -p "Create desktop shortcut? (y/n): " CREATE_DESKTOP
 if [[ "$CREATE_DESKTOP" == "y" ]]; then
-    cat > "$HOME/Desktop/Compliance Checker.command" << EOF
+    cat > "$HOME/Desktop/Compliance Checker.command" << 'EOF'
 #!/bin/bash
 # Compliance Checker Desktop App
 
@@ -184,15 +184,15 @@ echo ""
 echo "Drag and drop a folder or enter path:"
 read -p "Folder path: " folder_path
 
-if [ -z "\$folder_path" ]; then
-    folder_path="\$HOME/Desktop"
+if [ -z "$folder_path" ]; then
+    folder_path="$HOME/Desktop"
 fi
 
 # Remove quotes if dragged from Finder
-folder_path="\${folder_path%\'}"
-folder_path="\${folder_path#\'}"
+folder_path="${folder_path%'}"
+folder_path="${folder_path#'}"
 
-/usr/local/bin/check-compliance "\$folder_path"
+/usr/local/bin/check-compliance "$folder_path"
 
 echo ""
 echo "Press any key to close..."
