@@ -319,6 +319,10 @@ class TherapyNoteProcessor:
         
         try:
             doc = fitz.open(pdf_path)
+            
+            # Load Open Sans Light font
+            font_path = os.path.join(os.path.dirname(__file__), "Open_Sans", "static", "OpenSans-Light.ttf")
+            font_path_bold_italic = os.path.join(os.path.dirname(__file__), "Open_Sans", "static", "OpenSans-BoldItalic.ttf")
             fixed = False
             
             for page_num in range(len(doc)):
@@ -348,11 +352,12 @@ class TherapyNoteProcessor:
                             page.add_redact_annot(expanded)
                             page.apply_redactions()
                             
+                            # Use Open Sans Light for date corrections
                             page.insert_text(
                                 point=(rect.x0, rect.y0 + rect.height * 0.8),
                                 text=new_date,
                                 fontsize=9,
-                                fontname="Helvetica",  # Using standard Helvetica to match surrounding text
+                                fontfile=font_path,  # Open Sans Light
                                 color=(0, 0, 0)
                             )
                             fixed = True
@@ -374,11 +379,12 @@ class TherapyNoteProcessor:
                             page.add_redact_annot(expanded)
                             page.apply_redactions()
                             
+                            # Use Open Sans Light for CPT code corrections
                             page.insert_text(
                                 point=(rect.x0, rect.y0 + rect.height * 0.8),
                                 text=correct_code,
                                 fontsize=9,
-                                fontname="Helvetica",  # Match surrounding text font
+                                fontfile=font_path,  # Open Sans Light
                                 color=(0, 0, 0)
                             )
                             fixed = True
@@ -409,13 +415,13 @@ class TherapyNoteProcessor:
                             page.add_redact_annot(expanded)
                             page.apply_redactions()
                             
-                            # Insert entire "Rendered by:" line in bold italic
+                            # Use Open Sans Bold Italic for "Rendered by:" line
                             # Don't add ANY "Supervised by" - the MD one is already there!
                             page.insert_text(
                                 point=(rect.x0, rect.y0 + rect.height * 0.8),
                                 text=f"Rendered by: {signer_name}, {signer_credentials}",
                                 fontsize=9,
-                                fontname="Helvetica-BoldOblique",  # Bold + Italic
+                                fontfile=font_path_bold_italic,  # Open Sans Bold Italic
                                 color=(0, 0, 0)
                             )
                             
