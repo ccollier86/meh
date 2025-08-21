@@ -92,40 +92,63 @@ echo ""
 echo "Installing Python dependencies..."
 uv sync
 
-# Get OpenAI API key (REQUIRED)
-echo ""
-echo "======================================"
-echo "  OPENAI API KEY REQUIRED"
-echo "======================================"
-echo ""
-echo "This tool requires an OpenAI API key to analyze notes."
-echo "Get one at: https://platform.openai.com/api-keys"
-echo ""
-echo "Your API key will be stored locally in a .env file"
-echo "and will NOT be shared or transmitted anywhere except to OpenAI."
-echo ""
-
-# Keep asking until we get a key
-while true; do
-    read -p "Enter your OpenAI API key (starts with 'sk-'): " API_KEY
-    
-    if [ -z "$API_KEY" ]; then
+# Check for existing API key
+if [ -f "$INSTALL_DIR/.env" ]; then
+    # Check if .env has a valid API key
+    if grep -q "^OPENAI_API_KEY=sk-" "$INSTALL_DIR/.env" 2>/dev/null; then
         echo ""
-        echo "⚠ API key is required to use this tool."
-        echo "  Please enter your OpenAI API key or press Ctrl+C to cancel."
+        echo "✓ Existing OpenAI API key found"
         echo ""
-    elif [[ ! "$API_KEY" =~ ^sk- ]]; then
-        echo ""
-        echo "⚠ Invalid API key format. OpenAI keys start with 'sk-'"
-        echo "  Please try again or press Ctrl+C to cancel."
-        echo ""
+        read -p "Do you want to update your API key? (y/N): " UPDATE_KEY
+        if [[ "$UPDATE_KEY" != "y" ]]; then
+            echo "✓ Keeping existing API key"
+            API_KEY="existing"
+        else
+            UPDATE_KEY="yes"
+        fi
     else
-        # Create .env file with API key
-        echo "OPENAI_API_KEY=$API_KEY" > "$INSTALL_DIR/.env"
-        echo "✓ API key configured successfully"
-        break
+        UPDATE_KEY="yes"
     fi
-done
+else
+    UPDATE_KEY="yes"
+fi
+
+# Get OpenAI API key if needed
+if [[ "$UPDATE_KEY" == "yes" ]]; then
+    echo ""
+    echo "======================================"
+    echo "  OPENAI API KEY REQUIRED"
+    echo "======================================"
+    echo ""
+    echo "This tool requires an OpenAI API key to analyze notes."
+    echo "Get one at: https://platform.openai.com/api-keys"
+    echo ""
+    echo "Your API key will be stored locally in a .env file"
+    echo "and will NOT be shared or transmitted anywhere except to OpenAI."
+    echo ""
+
+    # Keep asking until we get a key
+    while true; do
+        read -p "Enter your OpenAI API key (starts with 'sk-'): " API_KEY
+        
+        if [ -z "$API_KEY" ]; then
+            echo ""
+            echo "⚠ API key is required to use this tool."
+            echo "  Please enter your OpenAI API key or press Ctrl+C to cancel."
+            echo ""
+        elif [[ ! "$API_KEY" =~ ^sk- ]]; then
+            echo ""
+            echo "⚠ Invalid API key format. OpenAI keys start with 'sk-'"
+            echo "  Please try again or press Ctrl+C to cancel."
+            echo ""
+        else
+            # Create .env file with API key
+            echo "OPENAI_API_KEY=$API_KEY" > "$INSTALL_DIR/.env"
+            echo "✓ API key configured successfully"
+            break
+        fi
+    done
+fi
 
 # Create command-line wrapper
 echo ""
