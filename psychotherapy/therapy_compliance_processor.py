@@ -328,40 +328,63 @@ class TherapyNoteProcessor:
             for page_num in range(len(doc)):
                 page = doc[page_num]
                 
-                # Fix date if needed
+                # Fix date if needed - replace entire signature block
                 if analysis.get('date_issue', {}).get('found'):
                     date_info = analysis['date_issue']
-                    original_date = date_info.get('original_text', '')
+                    original_text = date_info.get('original_text', '')
+                    replacement_text = date_info.get('replacement_text', '')
                     
-                    # Extract just the date/time
-                    import re
-                    date_pattern = r'\d{2}/\d{2}/\d{4}\s+\d{1,2}:\d{2}\s+[ap]m'
-                    
-                    original_match = re.search(date_pattern, original_date)
-                    replacement_match = re.search(date_pattern, date_info.get('replacement_text', ''))
-                    
-                    if original_match and replacement_match:
-                        old_date = original_match.group()
-                        new_date = replacement_match.group()
+                    if original_text and replacement_text:
+                        # Search for "Electronically signed by" to find the signature block
+                        sig_instances = page.search_for("Electronically signed by")
                         
-                        instances = page.search_for(old_date)
-                        
-                        if instances:
-                            rect = instances[0]
-                            expanded = fitz.Rect(rect.x0-2, rect.y0-2, rect.x1+2, rect.y1+2)
-                            page.add_redact_annot(expanded)
-                            page.apply_redactions()
+                        if sig_instances:
+                            # Get the starting position of the signature block
+                            sig_rect = sig_instances[0]
                             
-                            # Use Open Sans Light for date corrections
-                            page.insert_text(
-                                point=(rect.x0, rect.y0 + rect.height * 0.8),
-                                text=new_date,
-                                fontsize=9,
-                                fontfile=font_path,  # Open Sans Light
-                                color=(0, 0, 0)
-                            )
-                            fixed = True
-                            print(f"      Fixed date: {old_date} -> {new_date}")
+                            # Extract the signer name and credentials from the replacement text
+                            import re
+                            # Pattern to extract name, credentials, and new date/time
+                            pattern = r'Electronically signed by\s+(.*?)\s+([A-Z]+(?:,\s*[A-Z]+)*)\s+at\s+(\d{2}/\d{2}/\d{4}\s+\d{1,2}:\d{2}\s+[ap]m)'
+                            match = re.search(pattern, replacement_text)
+                            
+                            if match:
+                                signer_name = match.group(1)
+                                credentials = match.group(2)
+                                new_datetime = match.group(3)
+                                
+                                # Redact the entire signature block (3 lines typically)
+                                # Expand rect to cover full width and 3 lines of text
+                                expanded = fitz.Rect(
+                                    sig_rect.x0 - 5,
+                                    sig_rect.y0 - 2,
+                                    sig_rect.x1 + 200,  # Extend right to cover full signature
+                                    sig_rect.y0 + 30    # Cover about 3 lines
+                                )
+                                page.add_redact_annot(expanded)
+                                page.apply_redactions()
+                                
+                                # Insert the new signature block with Open Sans Light
+                                # First line: "Electronically signed by [Name]"
+                                page.insert_text(
+                                    point=(sig_rect.x0, sig_rect.y0 + sig_rect.height * 0.8),
+                                    text=f"Electronically signed by {signer_name}",
+                                    fontsize=9,
+                                    fontfile=font_path,  # Open Sans Light
+                                    color=(0, 0, 0)
+                                )
+                                
+                                # Second line: "[Credentials] at [date/time]"
+                                page.insert_text(
+                                    point=(sig_rect.x0, sig_rect.y0 + sig_rect.height * 0.8 + 12),
+                                    text=f"{credentials} at {new_datetime}",
+                                    fontsize=9,
+                                    fontfile=font_path,  # Open Sans Light
+                                    color=(0, 0, 0)
+                                )
+                                
+                                fixed = True
+                                print(f"      Fixed signature date: {new_datetime}")
                 
                 # Fix CPT code if needed
                 if analysis.get('cpt_issue', {}).get('found'):
