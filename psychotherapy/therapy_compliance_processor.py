@@ -49,32 +49,46 @@ class TherapyNoteProcessor:
                 for i in range(min(2, len(pdf.pages))):
                     text_to_check += pdf.pages[i].extract_text() + "\n"
                 
+                # Check for therapy CPT codes first - strongest indicator
+                has_therapy_cpt = any(code in text_to_check for code in ['90791', '90832', '90834', '90837', '90847', '90853'])
+                
+                # Check for medical credentials (MD, DO, NP, PA)
+                medical_credentials = ['MD', 'M.D.', 'DO', 'D.O.', 'NP', 'PA', 'PA-C']
+                has_medical_credential = False
+                
+                if "signed by" in text_to_check.lower():
+                    lines = text_to_check.split('\n')
+                    for i, line in enumerate(lines):
+                        if "signed by" in line.lower():
+                            # Check this line and next 2 lines for credentials
+                            check_area = ' '.join(lines[i:min(i+3, len(lines))])
+                            # Check for medical credentials
+                            for med_cred in medical_credentials:
+                                if med_cred in check_area:
+                                    has_medical_credential = True
+                                    break
+                
+                # If it has therapy CPT codes and NO medical credentials, it's therapy
+                if has_therapy_cpt and not has_medical_credential:
+                    # Look for therapy credential
+                    for credential in self.therapy_credentials:
+                        if credential in text_to_check:
+                            return True, credential
+                    # No credential found but has therapy codes - it's still therapy
+                    return True, "Therapist"
+                
                 # Special case: Jennifer Bell is always a therapy provider
                 if "Jennifer Bell" in text_to_check:
-                    # Check for therapy CPT codes
-                    if any(code in text_to_check for code in ['90791', '90832', '90834', '90837', '90847', '90853']):
-                        return True, "Therapist"
-                    # Check for START TIME/END TIME pattern
-                    if "START TIME:" in text_to_check and "END TIME:" in text_to_check:
-                        return True, "Therapist"
+                    return True, "Therapist"
                 
                 # Check for therapy credentials in signature area
                 for credential in self.therapy_credentials:
-                    # Look for credentials near "signed by" area
-                    if "signed by" in text_to_check.lower():
-                        # Find the lines around "signed by"
-                        lines = text_to_check.split('\n')
-                        for i, line in enumerate(lines):
-                            if "signed by" in line.lower():
-                                # Check this line and next 2 lines for credentials
-                                check_area = ' '.join(lines[i:min(i+3, len(lines))])
-                                if credential in check_area:
-                                    # Also check for CPT codes
-                                    if any(code in text_to_check for code in ['90791', '90832', '90834', '90837', '90847', '90853']):
-                                        return True, credential
-                                    # Check for START TIME/END TIME pattern
-                                    if "START TIME:" in text_to_check and "END TIME:" in text_to_check:
-                                        return True, credential
+                    if credential in text_to_check:
+                        return True, credential
+                
+                # If we found medical credentials, it's medical
+                if has_medical_credential:
+                    return False, "Medical"
                 
                 # Additional checks for therapy-specific content
                 therapy_indicators = [
@@ -83,16 +97,20 @@ class TherapyNoteProcessor:
                     "Goal #",
                     "psychotherapy",
                     "mental status exam",
-                    "treatment goals"
+                    "treatment goals",
+                    "START TIME:",
+                    "END TIME:"
                 ]
                 
                 indicator_count = sum(1 for indicator in therapy_indicators if indicator.lower() in text_to_check.lower())
+                
+                # If has many therapy indicators, it's therapy
                 if indicator_count >= 3:
-                    # Find credential if present
-                    for credential in self.therapy_credentials:
-                        if credential in text_to_check:
-                            return True, credential
-                    return True, "Unknown"
+                    return True, "Therapist"
+                
+                # Default: If no medical credentials found and has some therapy indicators, assume therapy
+                if not has_medical_credential and indicator_count >= 1:
+                    return True, "Therapist"
                 
                 return False, "Medical"
                 
