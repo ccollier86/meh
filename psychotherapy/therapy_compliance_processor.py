@@ -320,10 +320,16 @@ class TherapyNoteProcessor:
             import os as os_module  # Ensure os is available
             doc = fitz.open(pdf_path)
             
-            # Load Open Sans Light font
+            # Load Open Sans fonts
             current_dir = os_module.path.dirname(os_module.path.abspath(__file__))
             font_path = os_module.path.join(current_dir, "Open_Sans", "static", "OpenSans-Light.ttf")
             font_path_bold_italic = os_module.path.join(current_dir, "Open_Sans", "static", "OpenSans-BoldItalic.ttf")
+            
+            # Debug: Check if font files exist
+            if not os_module.path.exists(font_path_bold_italic):
+                print(f"      Warning: Bold Italic font not found at {font_path_bold_italic}")
+                # Fallback to built-in font
+                font_path_bold_italic = None
             fixed = False
             
             for page_num in range(len(doc)):
@@ -440,13 +446,24 @@ class TherapyNoteProcessor:
                             
                             # Use Open Sans Bold Italic for "Rendered by:" line
                             # Don't add ANY "Supervised by" - the MD one is already there!
-                            page.insert_text(
-                                point=(rect.x0, rect.y0 + rect.height * 0.8),
-                                text=f"Rendered by: {signer_name}, {signer_credentials}",
-                                fontsize=9,
-                                fontfile=font_path_bold_italic,  # Open Sans Bold Italic
-                                color=(0, 0, 0)
-                            )
+                            if font_path_bold_italic:
+                                # Use Open Sans Bold Italic if available
+                                page.insert_text(
+                                    point=(rect.x0, rect.y0 + rect.height * 0.8),
+                                    text=f"Rendered by: {signer_name}, {signer_credentials}",
+                                    fontsize=9,
+                                    fontfile=font_path_bold_italic,  # Open Sans Bold Italic
+                                    color=(0, 0, 0)
+                                )
+                            else:
+                                # Fallback to built-in Helvetica Bold Oblique
+                                page.insert_text(
+                                    point=(rect.x0, rect.y0 + rect.height * 0.8),
+                                    text=f"Rendered by: {signer_name}, {signer_credentials}",
+                                    fontsize=9,
+                                    fontname="Helvetica-BoldOblique",  # Built-in bold italic
+                                    color=(0, 0, 0)
+                                )
                             
                             # That's it! The original "Supervised by: Neil Jariwala, MD" stays untouched
                             # The original "Diagnoses attached to this encounter:" stays untouched
