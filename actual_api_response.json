@@ -1,0 +1,60 @@
+{
+  "token_usage": {
+    "input_tokens": 2786,
+    "output_tokens": 630,
+    "total_tokens": 3416
+  },
+  "costs": {
+    "input_cost": 0.0034825,
+    "output_cost": 0.0063,
+    "total_cost": 0.0097825
+  },
+  "response": {
+    "filename": "therapynote1.pdf",
+    "service_date": "06/17/2025",
+    "signing_date": "07/02/2025 11:10 am",
+    "date_issue": {
+      "found": true,
+      "description": "The signing date is 15 days after the service date, which exceeds the 4-6 day compliance window.",
+      "days_difference": 15,
+      "corrected_date": "06/21/2025 11:10 am",
+      "original_text": "Electronically signed by Michelle Craig LCSW at 07/02/2025 11:10 am",
+      "replacement_text": "Electronically signed by Michelle Craig LCSW at 06/21/2025 11:10 am"
+    },
+    "cpt_issue": {
+      "found": false,
+      "is_initial_visit": true,
+      "start_time": "1:05 pm",
+      "end_time": "2:25 pm",
+      "duration_minutes": 80,
+      "current_code": "90791",
+      "correct_code": "90791",
+      "description": "The CPT code 90791 is correct for an initial visit with a duration of 80 minutes.",
+      "original_text": "CPT Code: 90791",
+      "replacement_text": "CPT Code: 90791"
+    },
+    "goals_issue": {
+      "found": false,
+      "goals_count": 2,
+      "description": "Two distinct goals are documented with proper formatting and components.",
+      "formatting_issues": [],
+      "goals_found": [
+        "Goal #1: \"I want to be able to manage my triggers when I'm dealing with anxiety and use healthy coping strategies. I want to be able to express myself instead of shutting down completely.\"",
+        "Goal #2: \"I want to have healthy boundaries for myself, within my marriage and with my family members. I want to make sure I don't overcompensate or allow people to make me doubt myself. I want to feel confident in my decision-making.\""
+      ]
+    },
+    "supervision_issue": {
+      "found": true,
+      "signer_name": "Michelle Craig",
+      "signer_credentials": "LCSW",
+      "rendered_by": "Alexis S. Williams, LSW",
+      "supervised_by": [
+        "Michelle Craig, LCSW",
+        "Neil Jariwala, MD"
+      ],
+      "description": "The 'Rendered by' section does not match the signer. It should be 'Michelle Craig, LCSW'.",
+      "original_text": "Rendered by: Alexis S. Williams, LSW\nSupervised by: Michelle Craig, LCSW\nSupervised by: Neil Jariwala, MD",
+      "replacement_text": "Rendered by: Michelle Craig, LCSW\nSupervised by: Neil Jariwala, MD"
+    }
+  }
+}

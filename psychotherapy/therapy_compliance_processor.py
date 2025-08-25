@@ -531,6 +531,47 @@ class TherapyNoteProcessor:
         except Exception as e:
             print(f"      ERROR fixing PDF: {e}")
             return False
+
+    def format_filename_for_processed(self, original_filename: str) -> str:
+        """
+        Convert filename from format like:
+        MCCLURE.LINSDAY.06.02.2025_TH.pdf
+        to:
+        MCCLURE_LINSDAY_06022025_TH.pdf
+        """
+        # Remove .pdf extension if present
+        if original_filename.endswith('.pdf'):
+            name_without_ext = original_filename[:-4]
+        else:
+            name_without_ext = original_filename
+        
+        # Replace dots with underscores for name parts
+        # Handle the date part specially
+        parts = name_without_ext.split('.')
+        
+        if len(parts) >= 5:
+            # Expected format: LASTNAME.FIRSTNAME.MM.DD.YYYY_SUFFIX
+            lastname = parts[0]
+            firstname = parts[1]
+            month = parts[2]
+            day = parts[3]
+            # The year and suffix part (e.g., "2025_TH")
+            year_suffix = '.'.join(parts[4:])
+            
+            # Extract year and suffix if they're separated by underscore
+            if '_' in year_suffix:
+                year, suffix = year_suffix.split('_', 1)
+                # Format: LASTNAME_FIRSTNAME_MMDDYYYY_SUFFIX
+                formatted_name = f"{lastname}_{firstname}_{month}{day}{year}_{suffix}"
+            else:
+                # Just year, no suffix
+                year = year_suffix
+                formatted_name = f"{lastname}_{firstname}_{month}{day}{year}"
+        else:
+            # Fallback: just replace all dots with underscores
+            formatted_name = name_without_ext.replace('.', '_')
+        
+        return f"{formatted_name}.pdf"
     
     def generate_modern_report(self, results: List[Dict[str, Any]], folders: Dict[str, str]) -> str:
         """Generate professional minimalist HTML report with tabs"""
@@ -890,7 +931,9 @@ class TherapyNoteProcessor:
                 
                 # File links - use absolute paths
                 if result.get('corrections_made'):
-                    processed_path = os.path.abspath(os.path.join(folders['processed'], filename.replace('.pdf', '_CORRECTED.pdf')))
+                    # Use the stored corrected filename or format it
+                    corrected_filename = result.get('corrected_filename', self.format_filename_for_processed(filename))
+                    processed_path = os.path.abspath(os.path.join(folders['processed'], corrected_filename))
                     original_path = os.path.abspath(os.path.join(folders['therapy'], filename))
                     links = f'<a href="file://{original_path}" class="file-link">Original</a> | <a href="file://{processed_path}" class="file-link">Corrected</a>'
                 else:
@@ -1130,12 +1173,13 @@ class TherapyNoteProcessor:
                     
                     # Apply fixes to the file in current location
                     if self.fix_pdf(pdf_path, analysis, full_text):
-                        # Move the CORRECTED file to processed folder
-                        corrected_name = filename.replace('.pdf', '_CORRECTED.pdf')
+                        # Format the filename for processed folder
+                        corrected_name = self.format_filename_for_processed(filename)
                         corrected_path = os.path.join(folders['processed'], corrected_name)
                         shutil.move(pdf_path, corrected_path)
                         
                         analysis['corrections_made'] = True
+                        analysis['corrected_filename'] = corrected_name  # Store the new filename
                         print(f"   SUCCESS: Saved corrected: {corrected_name}")
                     else:
                         # If fixes failed, remove the working copy
@@ -1184,13 +1228,6 @@ class TherapyNoteProcessor:
         print("PROCESSING COMPLETE")
         print("="*80)
         print(f"Total files: {len(pdf_files)}")
-        print(f"Therapy notes: {sum(1 for r in results if not r.get('is_medical_note'))}")
-        print(f"Medical notes: {sum(1 for r in results if r.get('is_medical_note'))}")
-        print(f"Issues found: {sum(1 for r in results if not r.get('is_medical_note') and (r.get('date_issue', {}).get('found') or r.get('cpt_issue', {}).get('found') or r.get('goals_issue', {}).get('found')))}")
-        print(f"Files corrected: {sum(1 for r in results if r.get('corrections_made'))}")
-        print(f"\nFiles organized in: {input_path}")
-        print(f"Report available at: {report_path}")
-        print("\nDone!")
 
 def main():
     parser = argparse.ArgumentParser(description='Process therapy notes for compliance')
