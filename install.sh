@@ -169,39 +169,7 @@ EOF
 
 chmod +x /usr/local/bin/check-compliance
 
-# Create desktop shortcut (optional)
-echo ""
-read -p "Create desktop shortcut? (y/n): " CREATE_DESKTOP
-if [[ "$CREATE_DESKTOP" == "y" ]]; then
-    cat > "$HOME/Desktop/Compliance Checker.command" << 'EOF'
-#!/bin/bash
-# Compliance Checker Desktop App
-
-echo "======================================"
-echo "  COMPLIANCE CHECKER"
-echo "======================================"
-echo ""
-echo "Drag and drop a folder or enter path:"
-read -p "Folder path: " folder_path
-
-if [ -z "$folder_path" ]; then
-    folder_path="$HOME/Desktop"
-fi
-
-# Remove quotes if dragged from Finder
-folder_path="${folder_path%\'}"
-folder_path="${folder_path#\'}"
-
-/usr/local/bin/check-compliance "$folder_path"
-
-echo ""
-echo "Press any key to close..."
-read -n 1
-EOF
-    
-    chmod +x "$HOME/Desktop/Compliance Checker.command"
-    echo "✓ Desktop shortcut created"
-fi
+# Desktop shortcut removed - not needed
 
 # Final instructions
 echo ""
@@ -216,11 +184,6 @@ echo ""
 echo "  From current directory:"
 echo "    check-compliance ."
 echo ""
-if [[ "$CREATE_DESKTOP" == "y" ]]; then
-    echo "  From Desktop:"
-    echo "    Double-click 'Compliance Checker' icon"
-    echo ""
-fi
 echo "Files will be organized into:"
 echo "  - medical_notes/    (medical notes with MDM analysis)"
 echo "  - therapy_notes/    (original therapy notes)"
